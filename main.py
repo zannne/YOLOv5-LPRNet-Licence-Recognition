@@ -17,7 +17,8 @@ def detect(save_img=False):
     if os.path.exists(out):
         shutil.rmtree(out)  # delete rec_result folder
     os.makedirs(out)  # make new rec_result folder
-    half = device.type != 'cpu'  # half precision only supported on CUDA
+    # half = device.type != 'cpu'  # half precision only supported on CUDA
+    half = False
 
     # Load yolov5 model
     model = attempt_load(det_weights, map_location=device)  # load FP32 model
@@ -148,10 +149,10 @@ def detect(save_img=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--classify', nargs='+', type=str, default=True, help='True rec')
-    parser.add_argument('--det-weights', nargs='+', type=str, default='./weights/yolov5_best.pt', help='model.pt path(s)')
-    parser.add_argument('--rec-weights', nargs='+', type=str, default='./weights/lprnet_best.pth', help='model.pt path(s)')
-    parser.add_argument('--source', type=str, default='./demo/images/', help='source')  # file/folder, 0 for webcam
-    parser.add_argument('--output', type=str, default='demo/rec_result', help='rec_result folder')  # rec_result folder
+    parser.add_argument('--det-weights', nargs='+', type=str, default='./licence/weights/yolov5_best.pt', help='model.pt path(s)')
+    parser.add_argument('--rec-weights', nargs='+', type=str, default='./licence/weights/lprnet_best.pth', help='model.pt path(s)')
+    parser.add_argument('--source', type=str, default='./licence/demo/images/', help='source')  # file/folder, 0 for webcam
+    parser.add_argument('--output', type=str, default='./licence/demo/rec_result', help='rec_result folder')  # rec_result folder
     parser.add_argument('--img-size', type=int, default=640, help='demo size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.4, help='object confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS')
