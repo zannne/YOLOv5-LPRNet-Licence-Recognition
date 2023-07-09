@@ -19,7 +19,7 @@ import torchvision
 import yaml
 from scipy.signal import butter, filtfilt
 from tqdm import tqdm
-from models.LPRNet import *
+# from models.LPRNet import *
 from . import torch_utils  #  torch_utils, google_utils
 
 # Set printoptions
@@ -31,10 +31,10 @@ matplotlib.rc('font', **{'size': 11})
 cv2.setNumThreads(0)
 
 
-def init_seeds(seed=0):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch_utils.init_seeds(seed=seed)
+# def init_seeds(seed=0):
+#     random.seed(seed)
+#     np.random.seed(seed)
+#     torch_utils.init_seeds(seed=seed)
 
 
 def get_latest_run(search_dir='./runs'):
@@ -845,60 +845,60 @@ def transform( img):
 
     return img
 
-def apply_classifier(x, model, img, im0):
-    # applies a second stage classifier to yolo outputs
-    im0 = [im0] if isinstance(im0, np.ndarray) else im0
-    plat_num=0
-    for i, d in enumerate(x):  # per image
-        if d is not None and len(d):
-            d = d.clone()
+# def apply_classifier(x, model, img, im0):
+#     # applies a second stage classifier to yolo outputs
+#     im0 = [im0] if isinstance(im0, np.ndarray) else im0
+#     plat_num=0
+#     for i, d in enumerate(x):  # per image
+#         if d is not None and len(d):
+#             d = d.clone()
 
-            # Reshape and pad cutouts
-            b = xyxy2xywh(d[:, :4])  # boxes
-            d[:, :4] = xywh2xyxy(b).long()
+#             # Reshape and pad cutouts
+#             b = xyxy2xywh(d[:, :4])  # boxes
+#             d[:, :4] = xywh2xyxy(b).long()
 
-            scale_coords(img.shape[2:], d[:, :4], im0[i].shape)
+#             scale_coords(img.shape[2:], d[:, :4], im0[i].shape)
 
-            # Classes
-            pred_cls1 = d[:, 5].long()
-            ims = []
+#             # Classes
+#             pred_cls1 = d[:, 5].long()
+#             ims = []
 
-            for j, a in enumerate(d):  # per item
-                cutout = im0[i][int(a[1]):int(a[3]), int(a[0]):int(a[2])]
-                im = cv2.resize(cutout, (94, 24))  # BGR
-                im = transform(im)
-                ims.append(im)
+#             for j, a in enumerate(d):  # per item
+#                 cutout = im0[i][int(a[1]):int(a[3]), int(a[0]):int(a[2])]
+#                 im = cv2.resize(cutout, (94, 24))  # BGR
+#                 im = transform(im)
+#                 ims.append(im)
 
-            # rec
-            preds = model(torch.Tensor(ims).to(d.device))  # classifier prediction
+#             # rec
+#             preds = model(torch.Tensor(ims).to(d.device))  # classifier prediction
 
-            prebs = preds.cpu().detach().numpy()
+#             prebs = preds.cpu().detach().numpy()
 
-            # 对识别结果进行CTC后处理：删除序列中空白位置的字符，删除重复元素的字符
-            preb_labels = list()
-            for w in range(prebs.shape[0]):
+#             # 对识别结果进行CTC后处理：删除序列中空白位置的字符，删除重复元素的字符
+#             preb_labels = list()
+#             for w in range(prebs.shape[0]):
 
-                preb = prebs[w, :, :]
-                preb_label = list()
-                for j in range(preb.shape[1]):
-                    preb_label.append(np.argmax(preb[:, j], axis=0))
+#                 preb = prebs[w, :, :]
+#                 preb_label = list()
+#                 for j in range(preb.shape[1]):
+#                     preb_label.append(np.argmax(preb[:, j], axis=0))
 
-                no_repeat_blank_label = list()
-                pre_c = preb_label[0]
+#                 no_repeat_blank_label = list()
+#                 pre_c = preb_label[0]
 
-                if pre_c != len(CHARS) - 1:
-                    no_repeat_blank_label.append(pre_c)
-                for c in preb_label:  # dropout repeate label and blank label
-                    if (pre_c == c) or (c == len(CHARS) - 1):
-                        if c == len(CHARS) - 1:
-                            pre_c = c
-                        continue
-                    no_repeat_blank_label.append(c)
-                    pre_c = c
-                preb_labels.append(no_repeat_blank_label)
+#                 if pre_c != len(CHARS) - 1:
+#                     no_repeat_blank_label.append(pre_c)
+#                 for c in preb_label:  # dropout repeate label and blank label
+#                     if (pre_c == c) or (c == len(CHARS) - 1):
+#                         if c == len(CHARS) - 1:
+#                             pre_c = c
+#                         continue
+#                     no_repeat_blank_label.append(c)
+#                     pre_c = c
+#                 preb_labels.append(no_repeat_blank_label)
 
-            plat_num = np.array(preb_labels)
-    return x, plat_num
+#             plat_num = np.array(preb_labels)
+#     return x, plat_num
 
 
 def fitness(x):
